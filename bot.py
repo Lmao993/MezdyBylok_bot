@@ -6,24 +6,21 @@ from aiogram.types import Message
 from aiogram.filters import Command
 from flask import Flask
 from dotenv import load_dotenv
-from threading import Thread
-
-# Логирование
-logging.basicConfig(level=logging.INFO)
 
 # Загружаем переменные окружения
-load_dotenv()  
+load_dotenv()
 
-print("Переменные окружения:", os.environ)  # Выведет все переменные окружения
-print("BOT_TOKEN из os.environ:", os.environ.get("BOT_TOKEN"))  # Проверит, есть ли BOT_TOKEN
-print("BOT_TOKEN через os.getenv:", os.getenv("BOT_TOKEN"))  # Проверит через os.getenv()
+# Выводим все переменные окружения (для отладки)
+print("Переменные окружения:", os.environ)
+print("BOT_TOKEN из os.environ:", os.environ.get("BOT_TOKEN"))
+print("BOT_TOKEN через os.getenv:", os.getenv("BOT_TOKEN"))
 
-# Получаем токен из переменной окружения
-TOKEN = os.getenv("8019210319:AAEkPi_tpqON8PoKY563Dq3XpL_tHV5o6pM")
+# Получаем токен
+TOKEN = os.getenv("BOT_TOKEN")
 
 if not TOKEN:
     logging.error("⚠️ ОШИБКА: Переменная окружения BOT_TOKEN не установлена!")
-    raise ValueError("⚠️ BOT_TOKEN отсутствует! Установите его в настройках Render.")
+    raise ValueError("⚠️ BOT_TOKEN отсутствует! Установите его в Render.")
 
 bot = Bot(token=TOKEN)
 dp = Dispatcher()
@@ -45,6 +42,7 @@ async def main():
     loop = asyncio.get_running_loop()
 
     # Запускаем Flask-сервер в фоне
+    from threading import Thread
     def run_flask():
         app.run(host="0.0.0.0", port=port)
 
