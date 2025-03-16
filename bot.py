@@ -35,7 +35,7 @@ def userinfo(update: Update, context: CallbackContext):
 
 def main():
     # Замените 'YOUR_BOT_TOKEN' на токен вашего бота
-    updater = Updater("YOUR_BOT_TOKEN")
+    updater = Updater(8019210319:AAEkPi_tpqON8PoKY563Dq3XpL_tHV5o6pM)
     dp = updater.dispatcher
 
     # Регистрируем обработчик команды /userinfo
