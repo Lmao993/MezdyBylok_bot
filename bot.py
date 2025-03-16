@@ -1,48 +1,59 @@
-from telegram import Update, ParseMode
-from telegram.ext import Updater, CommandHandler, CallbackContext
+import logging
 import datetime
+from aiogram import Bot, Dispatcher, types
+from aiogram.types import InputFile
+from aiogram.utils import executor
 
-def userinfo(update: Update, context: CallbackContext):
-    user = update.effective_user
+# Токен бота (замени на свой)
+TOKEN = "8019210319:AAEkPi_tpqON8PoKY563Dq3XpL_tHV5o6pM"
 
-    # Для демонстрации: считаем, что пользователь находится в чате с момента 30 дней назад.
-    join_date = update.message.date - datetime.timedelta(days=30)
-    duration = datetime.datetime.now(datetime.timezone.utc) - join_date
-    duration_str = str(duration).split('.')[0]  # убираем микросекунды
+# Инициализация бота и диспетчера
+bot = Bot(token=TOKEN)
+dp = Dispatcher(bot)
 
-    # Формируем HTML-сообщение с данными пользователя
-    caption = (
-        f"<b>{user.first_name} {user.last_name if user.last_name else ''}</b>\n"
-        f"<i>Юзернейм:</i> @{user.username if user.username else 'Нет'}\n"
-        f"<i>ID:</i> {user.id}\n"
-        f"<i>Длительность нахождения в чате:</i> {duration_str}"
-    )
+# Логирование (для отладки)
+logging.basicConfig(level=logging.INFO)
 
-    # Пытаемся получить фото профиля пользователя
-    photos = context.bot.get_user_profile_photos(user.id)
-    if photos.total_count > 0:
-        # Используем последнее (наиболее качественное) фото из первого набора
-        photo_file_id = photos.photos[0][-1].file_id
-        context.bot.send_photo(
-            chat_id=update.effective_chat.id,
-            photo=photo_file_id,
-            caption=caption,
-            parse_mode=ParseMode.HTML
+@dp.message_handler(commands=["инфа"])
+async def send_user_info(message: types.Message):
+    user = message.from_user
+    chat = await bot.get_chat_member(message.chat.id, user.id)
+    
+    # Получаем дату входа пользователя в чат
+    if chat.joined_date:
+        join_date = datetime.datetime.utcfromtimestamp(chat.joined_date).strftime('%Y-%m-%d %H:%M:%S')
+        duration = (datetime.datetime.utcnow() - datetime.datetime.utcfromtimestamp(chat.joined_date)).days
+    else:
+        join_date = "Неизвестно"
+        duration = "Неизвестно"
+
+    # Получаем фото профиля
+    photos = await bot.get_user_profile_photos(user.id)
+    
+    if photos.photos:
+        photo_id = photos.photos[0][-1].file_id  # Берём последнюю загруженную фотографию
+        await bot.send_photo(
+            chat_id=message.chat.id, 
+            photo=photo_id,
+            caption=f"👤 *Информация о пользователе:*\n"
+                    f"🔹 *Имя:* {user.first_name} {user.last_name or ''}\n"
+                    f"🔹 *Юзернейм:* @{user.username or 'Нет'}\n"
+                    f"🔹 *ID:* {user.id}\n"
+                    f"🔹 *Дата входа в чат:* {join_date}\n"
+                    f"🔹 *Дней в чате:* {duration}",
+            parse_mode="Markdown"
         )
     else:
-        # Если фото отсутствует — отправляем текст
-        update.message.reply_text(text=caption, parse_mode=ParseMode.HTML)
+        await message.reply(
+            f"👤 *Информация о пользователе:*\n"
+            f"🔹 *Имя:* {user.first_name} {user.last_name or ''}\n"
+            f"🔹 *Юзернейм:* @{user.username or 'Нет'}\n"
+            f"🔹 *ID:* {user.id}\n"
+            f"🔹 *Дата входа в чат:* {join_date}\n"
+            f"🔹 *Дней в чате:* {duration}",
+            parse_mode="Markdown"
+        )
 
-def main():
-    # Замените 'YOUR_BOT_TOKEN' на токен вашего бота
-    updater = Updater(8019210319:AAEkPi_tpqON8PoKY563Dq3XpL_tHV5o6pM)
-    dp = updater.dispatcher
-
-    # Регистрируем обработчик команды /userinfo
-    dp.add_handler(CommandHandler("userinfo", userinfo))
-
-    updater.start_polling()
-    updater.idle()
-
-if __name__ == '__main__':
-    main()
+# Запуск бота
+if __name__ == "__main__":
+    executor.start_polling(dp, skip_updates=True)
