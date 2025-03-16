@@ -2,7 +2,9 @@ import logging
 import datetime
 from aiogram import Bot, Dispatcher, types
 from aiogram.types import InputFile
-from aiogram.utils import executor
+import asyncio
+from aiogram import Bot, Dispatcher
+
 
 # Токен бота (замени на свой)
 TOKEN = "8019210319:AAEkPi_tpqON8PoKY563Dq3XpL_tHV5o6pM"
@@ -55,5 +57,9 @@ async def send_user_info(message: types.Message):
         )
 
 # Запуск бота
+async def main():
+    await dp.start_polling(bot)
+
 if __name__ == "__main__":
-    executor.start_polling(dp, skip_updates=True)
+    asyncio.run(main())
+
