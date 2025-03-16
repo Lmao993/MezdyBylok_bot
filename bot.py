@@ -14,6 +14,10 @@ logging.basicConfig(level=logging.INFO)
 # Загружаем переменные окружения
 load_dotenv()  
 
+print("Переменные окружения:", os.environ)  # Выведет все переменные окружения
+print("BOT_TOKEN из os.environ:", os.environ.get("BOT_TOKEN"))  # Проверит, есть ли BOT_TOKEN
+print("BOT_TOKEN через os.getenv:", os.getenv("BOT_TOKEN"))  # Проверит через os.getenv()
+
 # Получаем токен из переменной окружения
 TOKEN = os.getenv("8019210319:AAEkPi_tpqON8PoKY563Dq3XpL_tHV5o6pM")
 
