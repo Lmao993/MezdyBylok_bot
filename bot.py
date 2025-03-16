@@ -5,12 +5,17 @@ from aiogram import Bot, Dispatcher
 from aiogram.types import Message
 from aiogram.filters import Command
 from flask import Flask
+from dotenv import load_dotenv
+from threading import Thread
 
 # Логирование
 logging.basicConfig(level=logging.INFO)
 
+# Загружаем переменные окружения
+load_dotenv()  
+
 # Получаем токен из переменной окружения
-TOKEN = os.getenv("8019210319:AAEkPi_tpqON8PoKY563Dq3XpL_tHV5o6pM")  # Убедись, что в Render BOT_TOKEN установлен корректно!
+TOKEN = os.getenv("8019210319:AAEkPi_tpqON8PoKY563Dq3XpL_tHV5o6pM")
 
 if not TOKEN:
     logging.error("⚠️ ОШИБКА: Переменная окружения BOT_TOKEN не установлена!")
@@ -36,7 +41,6 @@ async def main():
     loop = asyncio.get_running_loop()
 
     # Запускаем Flask-сервер в фоне
-    from threading import Thread
     def run_flask():
         app.run(host="0.0.0.0", port=port)
 
@@ -49,7 +53,6 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-
 
 
 if __name__ == "__main__":
