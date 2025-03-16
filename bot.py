@@ -9,7 +9,7 @@ from aiogram.filters import Command
 logging.basicConfig(level=logging.INFO)
 
 # Получаем токен из переменной окружения
-TOKEN = os.getenv("BOT_TOKEN")
+TOKEN = os.getenv("8019210319:AAEkPi_tpqON8PoKY563Dq3XpL_tHV5o6pM")
 
 if not TOKEN:
     logging.error("⚠️ ОШИБКА: Переменная окружения BOT_TOKEN не установлена!")
