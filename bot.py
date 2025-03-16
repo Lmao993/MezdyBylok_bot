@@ -10,7 +10,7 @@ from flask import Flask
 logging.basicConfig(level=logging.INFO)
 
 # Получаем токен из переменной окружения
-TOKEN = os.getenv(8019210319:AAEkPi_tpqON8PoKY563Dq3XpL_tHV5o6pM)  # Убедись, что в Render BOT_TOKEN установлен корректно!
+TOKEN = os.getenv("8019210319:AAEkPi_tpqON8PoKY563Dq3XpL_tHV5o6pM")  # Убедись, что в Render BOT_TOKEN установлен корректно!
 
 if not TOKEN:
     logging.error("⚠️ ОШИБКА: Переменная окружения BOT_TOKEN не установлена!")
