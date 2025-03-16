@@ -1,64 +1,41 @@
-import logging
-import datetime
-from aiogram import Bot, Dispatcher, types
-from aiogram.types import InputFile
 import asyncio
-from aiogram import Bot, Dispatcher
+from aiogram import Bot, Dispatcher, types
+from aiogram.types import Message
+from aiogram.filters import Command
+import logging
+import os
 
+TOKEN = os.getenv("BOT_TOKEN")  # Храним токен в переменных окружения
 
-# Токен бота (замени на свой)
-TOKEN = "8019210319:AAEkPi_tpqON8PoKY563Dq3XpL_tHV5o6pM"
-
-# Инициализация бота и диспетчера
 bot = Bot(token=TOKEN)
-dp = Dispatcher(bot)
+dp = Dispatcher()  # Теперь Dispatcher создается без аргументов
 
-# Логирование (для отладки)
-logging.basicConfig(level=logging.INFO)
 
-@dp.message_handler(commands=["инфа"])
-async def send_user_info(message: types.Message):
+@dp.message(Command("start"))
+async def start_handler(message: Message):
+    await message.answer("Привет! Я твой бот на aiogram 3.x")
+
+
+@dp.message(Command("инфа"))
+async def info_handler(message: Message):
     user = message.from_user
-    chat = await bot.get_chat_member(message.chat.id, user.id)
-    
-    # Получаем дату входа пользователя в чат
-    if chat.joined_date:
-        join_date = datetime.datetime.utcfromtimestamp(chat.joined_date).strftime('%Y-%m-%d %H:%M:%S')
-        duration = (datetime.datetime.utcnow() - datetime.datetime.utcfromtimestamp(chat.joined_date)).days
-    else:
-        join_date = "Неизвестно"
-        duration = "Неизвестно"
+    text = (f"*Имя:* {user.first_name} {user.last_name or ''}\n"
+            f"*Юзернейм:* @{user.username or '—'}\n"
+            f"*ID:* {user.id}\n"
+            f"*Длительность в чате:* неизвестно (нужно дописать логику)")
+    await message.answer_photo(photo=user.photo, caption=text, parse_mode="Markdown")
 
-    # Получаем фото профиля
-    photos = await bot.get_user_profile_photos(user.id)
-    
-    if photos.photos:
-        photo_id = photos.photos[0][-1].file_id  # Берём последнюю загруженную фотографию
-        await bot.send_photo(
-            chat_id=message.chat.id, 
-            photo=photo_id,
-            caption=f"👤 *Информация о пользователе:*\n"
-                    f"🔹 *Имя:* {user.first_name} {user.last_name or ''}\n"
-                    f"🔹 *Юзернейм:* @{user.username or 'Нет'}\n"
-                    f"🔹 *ID:* {user.id}\n"
-                    f"🔹 *Дата входа в чат:* {join_date}\n"
-                    f"🔹 *Дней в чате:* {duration}",
-            parse_mode="Markdown"
-        )
-    else:
-        await message.reply(
-            f"👤 *Информация о пользователе:*\n"
-            f"🔹 *Имя:* {user.first_name} {user.last_name or ''}\n"
-            f"🔹 *Юзернейм:* @{user.username or 'Нет'}\n"
-            f"🔹 *ID:* {user.id}\n"
-            f"🔹 *Дата входа в чат:* {join_date}\n"
-            f"🔹 *Дней в чате:* {duration}",
-            parse_mode="Markdown"
-        )
 
-# Запуск бота
 async def main():
+    dp.include_router(dp)  # Подключаем обработчики
+    await bot.delete_webhook(drop_pending_updates=True)  # Чистим апдейты
     await dp.start_polling(bot)
+
+
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
+    asyncio.run(main())
+
 
 if __name__ == "__main__":
     asyncio.run(main())
